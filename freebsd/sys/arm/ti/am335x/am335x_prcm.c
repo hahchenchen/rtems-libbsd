@@ -1,3 +1,5 @@
+#include <machine/rtems-bsd-kernel-space.h>
+
 /*-
  * Copyright (c) 2012 Damjan Marion <dmarion@Freebsd.org>
  * All rights reserved.
@@ -34,12 +36,18 @@ __FBSDID("$FreeBSD$");
 #include <sys/module.h>
 #include <sys/malloc.h>
 #include <sys/rman.h>
+#ifndef __rtems__
 #include <sys/timeet.h>
+#endif /* __rtems__ */
 #include <sys/timetc.h>
+#ifndef __rtems__
 #include <sys/watchdog.h>
+#endif /* __rtems__ */
 #include <machine/bus.h>
 #include <machine/cpu.h>
+#ifndef __rtems__
 #include <machine/intr.h>
+#endif /* __rtems__ */
 
 #include <arm/ti/tivar.h>
 #include <arm/ti/ti_scm.h>
@@ -406,7 +414,10 @@ void am335x_prcm_setup_dmtimer(int);
 static int
 am335x_prcm_probe(device_t dev)
 {
-
+#ifdef __rtems__
+	device_set_desc(dev, "AM335x Power and Clock Management");
+		return(BUS_PROBE_DEFAULT);
+#else /* __rtems__ */
 	if (!ofw_bus_status_okay(dev))
 		return (ENXIO);
 
@@ -416,6 +427,7 @@ am335x_prcm_probe(device_t dev)
 	}
 
 	return (ENXIO);
+#endif /* __rtems__ */
 }
 
 static int
@@ -436,8 +448,9 @@ am335x_prcm_attach(device_t dev)
 	sc->bsh = rman_get_bushandle(sc->res[0]);
 
 	am335x_prcm_sc = sc;
+#ifndef __rtems__
 	ti_cpu_reset = am335x_prcm_reset;
-
+#endif /* __rtems__ */
 	if (am335x_clk_get_sysclk_freq(NULL, &sysclk) != 0)
 		sysclk = 0;
 	if (am335x_clk_get_arm_fclk_freq(NULL, &fclk) != 0)
@@ -465,8 +478,13 @@ static driver_t am335x_prcm_driver = {
 
 static devclass_t am335x_prcm_devclass;
 
+#ifdef __rtems__
+DRIVER_MODULE(am335x_prcm, nexus, am335x_prcm_driver,
+	am335x_prcm_devclass, 0, 0);
+#else /* __rtems__ */
 DRIVER_MODULE(am335x_prcm, simplebus, am335x_prcm_driver,
 	am335x_prcm_devclass, 0, 0);
+#endif /* __rtems__ */
 MODULE_VERSION(am335x_prcm, 1);
 MODULE_DEPEND(am335x_prcm, ti_scm, 1, 1, 1);
 
