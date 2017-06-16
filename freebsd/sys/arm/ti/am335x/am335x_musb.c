@@ -1,3 +1,5 @@
+#include <machine/rtems-bsd-kernel-space.h>
+
 /*-
  * Copyright (c) 2013 Oleksandr Tymoshenko <gonzo@freebsd.org>
  *
@@ -221,12 +223,13 @@ musbotg_wrapper_interrupt(void *arg)
 static int
 musbotg_probe(device_t dev)
 {
+#ifndef __rtems__
 	if (!ofw_bus_status_okay(dev))
 		return (ENXIO);
 
 	if (!ofw_bus_is_compatible(dev, "ti,musb-am33xx"))
 		return (ENXIO);
-
+#endif /* __rtems__ */
 	device_set_desc(dev, "TI AM33xx integrated USB OTG controller");
 
 	return (BUS_PROBE_DEFAULT);
@@ -308,6 +311,7 @@ musbotg_attach(device_t dev)
 	}
 
 	sc->sc_otg.sc_platform_data = sc;
+#ifndef __rtems__
 	if (OF_getprop(ofw_bus_get_node(dev), "dr_mode", mode,
 	    sizeof(mode)) > 0) {
 		if (strcasecmp(mode, "host") == 0)
@@ -321,6 +325,13 @@ musbotg_attach(device_t dev)
 		else
 			sc->sc_otg.sc_mode = MUSB2_HOST_MODE;
 	}
+#else /* __rtems__ */
+	/* Beaglebone defaults: USB0 device, USB1 HOST. */
+	if (sc->sc_otg.sc_id == 0)
+		sc->sc_otg.sc_mode = MUSB2_DEVICE_MODE;
+	else
+		sc->sc_otg.sc_mode = MUSB2_HOST_MODE;
+#endif /* __rtems__ */
 
 	/*
 	 * software-controlled function
@@ -415,5 +426,9 @@ static driver_t musbotg_driver = {
 
 static devclass_t musbotg_devclass;
 
+#ifdef __rtems__
+DRIVER_MODULE(musbotg, nexus, musbotg_driver, musbotg_devclass, 0, 0);
+#else /* __rtems__ */
 DRIVER_MODULE(musbotg, usbss, musbotg_driver, musbotg_devclass, 0, 0);
+#endif /* __rtems__ */
 MODULE_DEPEND(musbotg, usbss, 1, 1, 1);

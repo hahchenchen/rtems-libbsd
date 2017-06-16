@@ -1,3 +1,5 @@
+#include <machine/rtems-bsd-kernel-space.h>
+
 /*
  * Copyright (c) 2010
  *	Ben Gray <ben.r.gray@gmail.com>.
@@ -46,14 +48,16 @@ __FBSDID("$FreeBSD$");
 #include <sys/kernel.h>
 #include <sys/module.h>
 #include <sys/bus.h>
-#include <sys/resource.h>
+#include <rtems/bsd/sys/resource.h>
 #include <sys/rman.h>
 #include <sys/lock.h>
 #include <sys/mutex.h>
 
 #include <machine/bus.h>
 #include <machine/resource.h>
+#ifndef __rtems__
 #include <machine/intr.h>
+#endif /* __rtems__ */
 
 #include <arm/ti/ti_cpuid.h>
 #include <arm/ti/ti_prcm.h>
