@@ -1,3 +1,5 @@
+#include <machine/rtems-bsd-kernel-space.h>
+
 /*
  * Copyright (c) 2010
  *	Ben Gray <ben.r.gray@gmail.com>.
@@ -46,14 +48,16 @@ __FBSDID("$FreeBSD$");
 #include <sys/kernel.h>
 #include <sys/module.h>
 #include <sys/bus.h>
-#include <sys/resource.h>
+#include <rtems/bsd/sys/resource.h>
 #include <sys/rman.h>
 #include <sys/lock.h>
 #include <sys/mutex.h>
 
 #include <machine/bus.h>
 #include <machine/resource.h>
+#ifndef __rtems__
 #include <machine/intr.h>
+#endif /* __rtems__ */
 
 #include <arm/ti/ti_cpuid.h>
 #include <arm/ti/ti_prcm.h>
@@ -91,6 +95,9 @@ ti_prcm_clk_dev(clk_ident_t clk)
 	 * being activated so IMHO not a big issue.
 	 */
 	clk_dev = NULL;
+#ifdef __rtems__
+	clk_dev = &(ti_am335x_clk_devmap[0]);
+#else /* __rtems__ */
 	switch(ti_chip()) {
 #ifdef SOC_OMAP4
 	case CHIP_OMAP_4:
@@ -103,6 +110,7 @@ ti_prcm_clk_dev(clk_ident_t clk)
 		break;
 #endif
 	}
+#endif /* __rtems__ */
 	if (clk_dev == NULL)
 		panic("No clock devmap found");
 	while (clk_dev->id != INVALID_CLK_IDENT) {

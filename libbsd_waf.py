@@ -731,6 +731,10 @@ def build(bld):
 
     source = ['freebsd/sys/arm/lpc/if_lpe.c',
               'freebsd/sys/arm/lpc/lpc_pwr.c',
+              'freebsd/sys/arm/ti/am335x/am335x_prcm.c',
+              'freebsd/sys/arm/ti/am335x/am335x_usbss.c',
+              'freebsd/sys/arm/ti/ti_prcm.c',
+              'freebsd/sys/arm/ti/ti_scm.c',
               'freebsd/sys/arm/xilinx/zy7_slcr.c',
               'freebsd/sys/cam/cam.c',
               'freebsd/sys/cam/scsi/scsi_all.c',

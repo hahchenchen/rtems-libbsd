@@ -1,3 +1,5 @@
+#include <machine/rtems-bsd-kernel-space.h>
+
 /*-
  * Copyright (c) 2013 Oleksandr Tymoshenko <gonzo@freebsd.org>
  *
@@ -40,7 +42,7 @@ __FBSDID("$FreeBSD$");
 #include <sys/condvar.h>
 #include <sys/sysctl.h>
 #include <sys/sx.h>
-#include <sys/unistd.h>
+#include <rtems/bsd/sys/unistd.h>
 #include <sys/callout.h>
 #include <sys/malloc.h>
 #include <sys/priv.h>
@@ -113,13 +115,13 @@ struct usbss_softc {
 static int
 usbss_probe(device_t dev)
 {
-
+#ifndef __rtems__
 	if (!ofw_bus_status_okay(dev))
 		return (ENXIO);
 
 	if (!ofw_bus_is_compatible(dev, "ti,am33xx-usb"))
 		return (ENXIO);
-
+#endif /* __rtems__ */
 	device_set_desc(dev, "TI AM33xx integrated USB OTG controller");
 	
 	return (BUS_PROBE_DEFAULT);
@@ -165,7 +167,7 @@ usbss_attach(device_t dev)
 	rev = USBSS_READ4(sc, USBSS_REVREG);
 	device_printf(dev, "TI AM335X USBSS v%d.%d.%d\n",
 	    (rev >> 8) & 7, (rev >> 6) & 3, rev & 63);
-
+#ifndef __rtems__
 	node = ofw_bus_get_node(dev);
 
 	if (node == -1) {
@@ -174,18 +176,18 @@ usbss_attach(device_t dev)
 	}
 
 	simplebus_init(dev, node);
-
+#endif /* __rtems__ */
 	/*
 	 * Allow devices to identify.
 	 */
 	bus_generic_probe(dev);
-
+#ifndef __rtems__
 	/*
 	 * Now walk the OFW tree and attach top-level devices.
 	 */
 	for (node = OF_child(node); node > 0; node = OF_peer(node))
 		simplebus_add_device(dev, node, 0, NULL, -1, NULL);
-
+#endif /* __rtems__ */
 	return (bus_generic_attach(dev));
 }
 
@@ -216,9 +218,22 @@ static device_method_t usbss_methods[] = {
 
 	DEVMETHOD_END
 };
+#ifdef __rtems__
+static driver_t usbss_driver = {
+	"usbss",
+	usbss_methods,
+	sizeof(struct usbss_softc),
+};
+#endif /* __rtems__ */
 
+#ifndef __rtems__
 DEFINE_CLASS_1(usbss, usbss_driver, usbss_methods,
     sizeof(struct usbss_softc), simplebus_driver);
+#endif /* __rtems__ */
 static devclass_t usbss_devclass;
+#ifdef __rtems__
+DRIVER_MODULE(usbss, nexus, usbss_driver, usbss_devclass, 0, 0);
+#else /* __rtems__ */
 DRIVER_MODULE(usbss, simplebus, usbss_driver, usbss_devclass, 0, 0);
+#endif /* __rtems__ */
 MODULE_DEPEND(usbss, usb, 1, 1, 1);

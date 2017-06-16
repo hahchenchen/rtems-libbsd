@@ -53,6 +53,7 @@
  *   RTEMS_BSD_DRIVER_MMC
  *   RTEMS_BSD_DRIVER_USB
  *   RTEMS_BSD_DRIVER_USB_MASS
+ *   RTEMS_BSD_DRIVER_USBSS
  *
  *  Networking:
  *   RTEMS_BSD_DRIVER_SMC0
@@ -80,6 +81,10 @@
  *   RTEMS_BSD_DRIVER_ICSPHY
  *   RTEMS_BSD_DRIVER_REPHY
  *   RTEMS_BSD_DRIVER_MIPHY
+ *
+ *  MISC:
+ *   RTEMS_BSD_DRIVER_TI_SCM
+ *   RTEMS_BSD_DRIVER_AM335x_PRCM
  */
 
 #if !defined(RTEMS_BSD_NEXUS_BUS_h)
@@ -254,6 +259,23 @@ extern "C" {
   #define RTEMS_BSD_DRIVER_USB_MASS               \
     SYSINIT_DRIVER_REFERENCE(umass, uhub)
 #endif /* RTEMS_BSD_DRIVER_USB_MASS */
+
+/*
+ * USBSS driver.
+ */
+#if !defined(RTEMS_BSD_DRIVER_USBSS)
+  #define RTEMS_BSD_DRIVER_USBSS(_base)                             \
+    static const rtems_bsd_device_resource usbss_res[] = {          \
+      {                                                             \
+        .type = RTEMS_BSD_RES_MEMORY,                               \
+        .start_request = 0,                                         \
+        .start_actual = (_base)                                     \
+      }                                                             \
+    };                                                              \
+    RTEMS_BSD_DEFINE_NEXUS_DEVICE(usbss, 0,                         \
+                                  RTEMS_ARRAY_SIZE(usbss_res),      \
+                                  &usbss_res[0])
+#endif /* RTEMS_BSD_DRIVER_USBSS */
 
 /**
  ** Networking
@@ -455,6 +477,44 @@ extern "C" {
   #define RTEMS_BSD_DRIVER_MIPHY                  \
     SYSINIT_DRIVER_REFERENCE(micphy, miibus);
 #endif /* RTEMS_BSD_DRIVER_MIPHY */
+
+/**
+ ** MISC
+ **/
+
+/*
+ * Ti SCM
+ */
+#if !defined(RTEMS_BSD_DRIVER_TI_SCM)
+  #define RTEMS_BSD_DRIVER_TI_SCM(_base)                            \
+    static const rtems_bsd_device_resource ti_scm_res[] = {         \
+      {                                                             \
+        .type = RTEMS_BSD_RES_MEMORY,                               \
+        .start_request = 0,                                         \
+        .start_actual = (_base)                                     \
+      }                                                             \
+    };                                                              \
+    RTEMS_BSD_DEFINE_NEXUS_DEVICE(ti_scm, 0,                        \
+                                  RTEMS_ARRAY_SIZE(ti_scm_res),     \
+                                  &ti_scm_res[0])
+#endif /* RTEMS_BSD_DRIVER_TI_SCM */
+
+/*
+ * AM335x PRCM
+ */
+#if !defined(RTEMS_BSD_DRIVER_AM335x_PRCM)
+  #define RTEMS_BSD_DRIVER_AM335x_PRCM(_base)                       \
+    static const rtems_bsd_device_resource am335x_prcm_res[] = {    \
+      {                                                             \
+        .type = RTEMS_BSD_RES_MEMORY,                               \
+        .start_request = 0,                                         \
+        .start_actual = (_base)                                     \
+      }                                                             \
+    };                                                              \
+    RTEMS_BSD_DEFINE_NEXUS_DEVICE(am335x_prcm, 0,                   \
+                                  RTEMS_ARRAY_SIZE(am335x_prcm_res),\
+                                  &am335x_prcm_res[0])
+#endif /* RTEMS_BSD_DRIVER_AM335x_PRCM */
 
 #ifdef __cplusplus
 }
