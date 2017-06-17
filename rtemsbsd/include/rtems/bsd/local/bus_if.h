@@ -522,9 +522,10 @@ static __inline int BUS_SETUP_INTR(device_t _dev, device_t _child,
                                    driver_filter_t *_filter,
                                    driver_intr_t *_intr, void *_arg,
                                    void **_cookiep)
-{
+{printk("BUS_SETUP_INTR\n");
 	kobjop_t _m;
 	KOBJOPLOOKUP(((kobj_t)_dev)->ops,bus_setup_intr);
+printk("BUS_SETUP_INTR2\n");
 	return ((bus_setup_intr_t *) _m)(_dev, _child, _irq, _flags, _filter, _intr, _arg, _cookiep);
 }
 

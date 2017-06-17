@@ -910,6 +910,8 @@ def dev_usb_controller_bbb(mm):
             'sys/arm/ti/am335x/am335x_prcm.c',
             'sys/arm/ti/am335x/am335x_usbss.c',
             'sys/arm/ti/ti_prcm.c',
+            'sys/arm/ti/am335x/am335x_musb.c',
+            'sys/dev/usb/controller/musb_otg.c',
         ],
         mm.generator['source']()
     )

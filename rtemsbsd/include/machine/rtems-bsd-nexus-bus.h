@@ -54,6 +54,8 @@
  *   RTEMS_BSD_DRIVER_USB
  *   RTEMS_BSD_DRIVER_USB_MASS
  *   RTEMS_BSD_DRIVER_USBSS
+ *   RTEMS_BSD_DRIVER_MUSB0
+ *   RTEMS_BSD_DRIVER_MUSB1
  *
  *  Networking:
  *   RTEMS_BSD_DRIVER_SMC0
@@ -276,6 +278,58 @@ extern "C" {
                                   RTEMS_ARRAY_SIZE(usbss_res),      \
                                   &usbss_res[0])
 #endif /* RTEMS_BSD_DRIVER_USBSS */
+
+/*
+ * MUSB0 driver.
+ */
+#if !defined(RTEMS_BSD_DRIVER_MUSB0)
+  #define RTEMS_BSD_DRIVER_MUSB0(_base0, _base1, _irq)              \
+    static const rtems_bsd_device_resource musbotg0_res[] = {       \
+      {                                                             \
+        .type = RTEMS_BSD_RES_MEMORY,                               \
+        .start_request = 0,                                         \
+        .start_actual = (_base0)                                    \
+      }, {                                                          \
+        .type = RTEMS_BSD_RES_MEMORY,                               \
+        .start_request = 1,                                         \
+        .start_actual = (_base1)                                    \
+      }, {                                                          \
+        .type = RTEMS_BSD_RES_IRQ,                                  \
+        .start_request = 0,                                         \
+        .start_actual = (_irq)                                      \
+      }                                                             \
+                                                                    \
+    };                                                              \
+    RTEMS_BSD_DEFINE_NEXUS_DEVICE(musbotg, 0,                       \
+                                  RTEMS_ARRAY_SIZE(musbotg0_res),   \
+                                  &musbotg0_res[0])
+#endif /* RTEMS_BSD_DRIVER_MUSB0 */
+
+/*
+ * MUSB1 driver.
+ */
+#if !defined(RTEMS_BSD_DRIVER_MUSB1)
+  #define RTEMS_BSD_DRIVER_MUSB1(_base0, _base1, _irq)              \
+    static const rtems_bsd_device_resource musbotg1_res[] = {       \
+      {                                                             \
+        .type = RTEMS_BSD_RES_MEMORY,                               \
+        .start_request = 0,                                         \
+        .start_actual = (_base0)                                    \
+      }, {                                                          \
+        .type = RTEMS_BSD_RES_MEMORY,                               \
+        .start_request = 1,                                         \
+        .start_actual = (_base1)                                    \
+      }, {                                                          \
+        .type = RTEMS_BSD_RES_IRQ,                                  \
+        .start_request = 0,                                         \
+        .start_actual = (_irq)                                      \
+      }                                                             \
+                                                                    \
+    };                                                              \
+    RTEMS_BSD_DEFINE_NEXUS_DEVICE(musbotg, 1,                       \
+                                  RTEMS_ARRAY_SIZE(musbotg1_res),   \
+                                  &musbotg1_res[0])
+#endif /* RTEMS_BSD_DRIVER_MUSB1 */
 
 /**
  ** Networking

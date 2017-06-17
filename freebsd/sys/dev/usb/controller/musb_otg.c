@@ -1,3 +1,5 @@
+#include <machine/rtems-bsd-kernel-space.h>
+
 /* $FreeBSD$ */
 /*-
  * Copyright (c) 2008 Hans Petter Selasky. All rights reserved.
@@ -52,7 +54,7 @@
 #include <sys/condvar.h>
 #include <sys/sysctl.h>
 #include <sys/sx.h>
-#include <sys/unistd.h>
+#include <rtems/bsd/sys/unistd.h>
 #include <sys/callout.h>
 #include <sys/malloc.h>
 #include <sys/priv.h>
@@ -3068,7 +3070,7 @@ musbotg_init(struct musbotg_softc *sc)
 	uint8_t dynfifo;
 
 	DPRINTFN(1, "start\n");
-
+printf("musbotg_init func\n");
 	/* set up the bus structure */
 	sc->sc_bus.usbrev = USB_REV_2_0;
 	sc->sc_bus.methods = &musbotg_bus_methods;

@@ -1,3 +1,5 @@
+#include <machine/rtems-bsd-kernel-space.h>
+
 /*-
  * Copyright (c) 2013 Oleksandr Tymoshenko <gonzo@freebsd.org>
  *
@@ -40,7 +42,7 @@ __FBSDID("$FreeBSD$");
 #include <sys/condvar.h>
 #include <sys/sysctl.h>
 #include <sys/sx.h>
-#include <sys/unistd.h>
+#include <rtems/bsd/sys/unistd.h>
 #include <sys/callout.h>
 #include <sys/malloc.h>
 #include <sys/priv.h>
@@ -221,12 +223,13 @@ musbotg_wrapper_interrupt(void *arg)
 static int
 musbotg_probe(device_t dev)
 {
+#ifndef __rtems__
 	if (!ofw_bus_status_okay(dev))
 		return (ENXIO);
 
 	if (!ofw_bus_is_compatible(dev, "ti,musb-am33xx"))
 		return (ENXIO);
-
+#endif /* __rtems__ */
 	device_set_desc(dev, "TI AM33xx integrated USB OTG controller");
 
 	return (BUS_PROBE_DEFAULT);
@@ -239,7 +242,7 @@ musbotg_attach(device_t dev)
 	char mode[16];
 	int err;
 	uint32_t reg;
-
+printf("musbotg_attach func\n");
 	sc->sc_otg.sc_id = device_get_unit(dev);
 
 	/* Request the memory resources */
@@ -254,12 +257,13 @@ musbotg_attach(device_t dev)
 	/* Request the IRQ resources */
 	sc->sc_otg.sc_irq_res = bus_alloc_resource_any(dev, SYS_RES_IRQ,
 	    &sc->sc_irq_rid, RF_ACTIVE);
+	printf("sc->sc_otg.sc_irq_res:%x\n",sc->sc_otg.sc_irq_res->r_bushandle );
 	if (sc->sc_otg.sc_irq_res == NULL) {
 		device_printf(dev,
 		    "Error: could not allocate irq resources\n");
 		return (ENXIO);
 	}
-
+printf("test1\n");
 	/* setup MUSB OTG USB controller interface softc */
 	sc->sc_otg.sc_clocks_on = &musbotg_clocks_on;
 	sc->sc_otg.sc_clocks_off = &musbotg_clocks_off;
@@ -280,6 +284,7 @@ musbotg_attach(device_t dev)
 		    "Failed allocate bus mem for musb\n");
 		return (ENOMEM);
 	}
+	printf("test1.1\n");
 	sc->sc_otg.sc_io_res = sc->sc_mem_res[RES_USBCORE];
 	sc->sc_otg.sc_io_tag =
 	    rman_get_bustag(sc->sc_otg.sc_io_res);
@@ -295,19 +300,21 @@ musbotg_attach(device_t dev)
 	}
 	device_set_ivars(sc->sc_otg.sc_bus.bdev,
 	    &sc->sc_otg.sc_bus);
-
+printf("test1.2\n");
 	err = bus_setup_intr(dev, sc->sc_otg.sc_irq_res,
 	    INTR_TYPE_BIO | INTR_MPSAFE,
 	    NULL, (driver_intr_t *)musbotg_wrapper_interrupt,
 	    &sc->sc_otg, &sc->sc_otg.sc_intr_hdl);
+	printf("test1.3\n");
 	if (err) {
 		sc->sc_otg.sc_intr_hdl = NULL;
 		device_printf(dev,
 		    "Failed to setup interrupt for musb\n");
 		goto error;
 	}
-
+printf("test2\n");
 	sc->sc_otg.sc_platform_data = sc;
+#ifndef __rtems__
 	if (OF_getprop(ofw_bus_get_node(dev), "dr_mode", mode,
 	    sizeof(mode)) > 0) {
 		if (strcasecmp(mode, "host") == 0)
@@ -321,6 +328,13 @@ musbotg_attach(device_t dev)
 		else
 			sc->sc_otg.sc_mode = MUSB2_HOST_MODE;
 	}
+#else /* __rtems__ */
+	/* Beaglebone defaults: USB0 device, USB1 HOST. */
+	if (sc->sc_otg.sc_id == 0)
+		sc->sc_otg.sc_mode = MUSB2_DEVICE_MODE;
+	else
+		sc->sc_otg.sc_mode = MUSB2_HOST_MODE;
+#endif /* __rtems__ */
 
 	/*
 	 * software-controlled function
@@ -343,7 +357,7 @@ musbotg_attach(device_t dev)
 	reg = USBCTRL_INTEN_USB_ALL & ~USBCTRL_INTEN_USB_SOF;
 	USBCTRL_WRITE4(sc, USBCTRL_INTEN_SET1, reg);
 	USBCTRL_WRITE4(sc, USBCTRL_INTEN_CLR0, 0xffffffff);
-
+printf("test3\n");
 	err = musbotg_init(&sc->sc_otg);
 	if (!err)
 		err = device_probe_and_attach(sc->sc_otg.sc_bus.bdev);
@@ -415,5 +429,9 @@ static driver_t musbotg_driver = {
 
 static devclass_t musbotg_devclass;
 
+#ifdef __rtems__
+DRIVER_MODULE(musbotg, nexus, musbotg_driver, musbotg_devclass, 0, 0);
+#else /* __rtems__ */
 DRIVER_MODULE(musbotg, usbss, musbotg_driver, musbotg_devclass, 0, 0);
+#endif /* __rtems__ */
 MODULE_DEPEND(musbotg, usbss, 1, 1, 1);

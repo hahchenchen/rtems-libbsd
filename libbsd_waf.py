@@ -731,6 +731,7 @@ def build(bld):
 
     source = ['freebsd/sys/arm/lpc/if_lpe.c',
               'freebsd/sys/arm/lpc/lpc_pwr.c',
+              'freebsd/sys/arm/ti/am335x/am335x_musb.c',
               'freebsd/sys/arm/ti/am335x/am335x_prcm.c',
               'freebsd/sys/arm/ti/am335x/am335x_usbss.c',
               'freebsd/sys/arm/ti/ti_prcm.c',
@@ -900,6 +901,7 @@ def build(bld):
               'freebsd/sys/dev/tsec/if_tsec_fdt.c',
               'freebsd/sys/dev/usb/controller/dwc_otg.c',
               'freebsd/sys/dev/usb/controller/ehci.c',
+              'freebsd/sys/dev/usb/controller/musb_otg.c',
               'freebsd/sys/dev/usb/controller/ohci.c',
               'freebsd/sys/dev/usb/controller/usb_controller.c',
               'freebsd/sys/dev/usb/input/atp.c',

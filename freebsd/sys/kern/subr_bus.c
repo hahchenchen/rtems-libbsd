@@ -4434,6 +4434,7 @@ bus_alloc_resources(device_t dev, struct resource_spec *rs,
 	for (i = 0; rs[i].type != -1; i++) {
 		res[i] = bus_alloc_resource_any(dev,
 		    rs[i].type, &rs[i].rid, rs[i].flags);
+		printf("res[i]:%x\n",res[i]->r_bushandle );
 		if (res[i] == NULL && !(rs[i].flags & RF_OPTIONAL)) {
 			bus_release_resources(dev, rs, res);
 			return (ENXIO);
@@ -4576,11 +4577,13 @@ bus_setup_intr(device_t dev, struct resource *r, int flags,
     driver_filter_t filter, driver_intr_t handler, void *arg, void **cookiep)
 {
 	int error;
-
+printf("bus_setup_intr fnc\n");
 	if (dev->parent == NULL)
 		return (EINVAL);
+	printf("bus_setup_intr fnc2\n");
 	error = BUS_SETUP_INTR(dev->parent, dev, r, flags, filter, handler,
 	    arg, cookiep);
+	printf("bus_setup_intr fnc3\n");
 	if (error != 0)
 		return (error);
 	if (handler != NULL && !(flags & INTR_MPSAFE))
