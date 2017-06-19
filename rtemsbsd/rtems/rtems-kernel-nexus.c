@@ -131,7 +131,7 @@ nexus_probe(device_t dev)
 }
 
 static bool
-nexus_get_start(const rtems_bsd_device *nd, int type, rman_res_t *start)
+nexus_get_start(const rtems_bsd_device *nd, int type, int rid, rman_res_t *start)
 {
 	u_long sr = (u_long)*start;
 	size_t i;
@@ -139,7 +139,9 @@ nexus_get_start(const rtems_bsd_device *nd, int type, rman_res_t *start)
 	for (i = 0; i < nd->resource_count; ++i) {
 		const rtems_bsd_device_resource *dr = &nd->resources[i];
 
-		if (dr->type == type && dr->start_request == sr) {
+		if (dr->type == type && dr->start_request >= sr) {
+			if(rid--)
+			    continue;
 			*start = dr->start_actual;
 
 			return (true);
@@ -176,7 +178,7 @@ nexus_alloc_resource(device_t bus, device_t child, int type, int *rid,
 	SET_FOREACH(nd, nexus) {
 		if (strcmp(device_get_name(child), nd->name) == 0
 		    && device_get_unit(child) == nd->unit) {
-			if (nexus_get_start(nd, type, &start)) {
+			if (nexus_get_start(nd, type, *rid, &start)) {
 				res = rman_reserve_resource(rm, start, end,
 				    count, flags, child);
 				if (res != NULL) {
