@@ -1,3 +1,5 @@
+#include <machine/rtems-bsd-kernel-space.h>
+
 /*	$OpenBSD: if_urtwn.c,v 1.16 2011/02/10 17:26:40 jakemsr Exp $	*/
 
 /*-
@@ -21,7 +23,7 @@
 #include <sys/cdefs.h>
 __FBSDID("$FreeBSD$");
 
-#include "opt_wlan.h"
+#include <rtems/bsd/local/opt_wlan.h>
 
 #include <sys/param.h>
 #include <sys/lock.h>

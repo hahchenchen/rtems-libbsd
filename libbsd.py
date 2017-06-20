@@ -1067,6 +1067,7 @@ def dev_wlan_rtwn(mm):
     mod.addRTEMSSourceFiles(
         [
             'local/rtwn-rtl8192cfwT.c',
+            'local/rtwn-rtl8188eufw.c',
         ],
         mm.generator['source']()
     )
@@ -1111,6 +1112,7 @@ def dev_wlan_rtwn(mm):
             'sys/dev/rtwn/rtl8192c/r92c_chan.c',
             'sys/dev/rtwn/rtl8192c/r92c_fw.c',
             'sys/dev/rtwn/rtl8192c/r92c_init.c',
+            'sys/dev/rtwn/rtl8192c/r92c_llt.c',
             'sys/dev/rtwn/rtl8192c/r92c_rf.c',
             'sys/dev/rtwn/rtl8192c/r92c_rom.c',
             'sys/dev/rtwn/rtl8192c/r92c_rx.c',
