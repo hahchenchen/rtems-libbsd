@@ -139,7 +139,7 @@ nexus_get_start(const rtems_bsd_device *nd, int type, int rid, rman_res_t *start
 	for (i = 0; i < nd->resource_count; ++i) {
 		const rtems_bsd_device_resource *dr = &nd->resources[i];
 
-		if (dr->type == type && dr->start_request == sr) {
+		if (dr->type == type && dr->start_request >= sr) {
 			if(rid--)
 			    continue;
 			*start = dr->start_actual;
