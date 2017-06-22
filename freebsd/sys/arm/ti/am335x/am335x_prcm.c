@@ -36,12 +36,18 @@ __FBSDID("$FreeBSD$");
 #include <sys/module.h>
 #include <sys/malloc.h>
 #include <sys/rman.h>
+#ifndef __rtems__
 #include <sys/timeet.h>
+#endif /* __rtems__ */
 #include <sys/timetc.h>
+#ifndef __rtems__
 #include <sys/watchdog.h>
+#endif /* __rtems__ */
 #include <machine/bus.h>
 #include <machine/cpu.h>
+#ifndef __rtems__
 #include <machine/intr.h>
+#endif /* __rtems__ */
 
 #include <arm/ti/tivar.h>
 #include <arm/ti/ti_scm.h>
@@ -438,7 +444,9 @@ am335x_prcm_attach(device_t dev)
 	sc->bsh = rman_get_bushandle(sc->res[0]);
 
 	am335x_prcm_sc = sc;
+#ifndef __rtems__
 	ti_cpu_reset = am335x_prcm_reset;
+#endif /* __rtems__ */
 
 	if (am335x_clk_get_sysclk_freq(NULL, &sysclk) != 0)
 		sysclk = 0;

@@ -66,7 +66,9 @@ __FBSDID("$FreeBSD$");
 #include <dev/ofw/openfirm.h>
 #include <dev/ofw/ofw_bus.h>
 #include <dev/ofw/ofw_bus_subr.h>
+#ifndef __rtems__
 #include <dev/fdt/fdt_pinctrl.h>
+#endif /* __rtems__ */
 
 #include "ti_scm.h"
 

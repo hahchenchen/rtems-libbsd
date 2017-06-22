@@ -55,7 +55,9 @@ __FBSDID("$FreeBSD$");
 
 #include <machine/bus.h>
 #include <machine/resource.h>
+#ifndef __rtems__
 #include <machine/intr.h>
+#endif /* __rtems__ */
 
 #include <arm/ti/ti_cpuid.h>
 #include <arm/ti/ti_prcm.h>
