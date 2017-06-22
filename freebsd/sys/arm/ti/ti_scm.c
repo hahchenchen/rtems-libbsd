@@ -66,7 +66,9 @@ __FBSDID("$FreeBSD$");
 #include <dev/ofw/openfirm.h>
 #include <dev/ofw/ofw_bus.h>
 #include <dev/ofw/ofw_bus_subr.h>
+#ifndef __rtems__
 #include <dev/fdt/fdt_pinctrl.h>
+#endif /* __rtems__ */
 
 #include "ti_scm.h"
 
@@ -88,6 +90,7 @@ static struct ti_scm_softc *ti_scm_sc;
 static int
 ti_scm_probe(device_t dev)
 {
+#ifndef __rtems__
 	if (!ofw_bus_status_okay(dev))
 		return (ENXIO);
 
@@ -97,6 +100,7 @@ ti_scm_probe(device_t dev)
 	if (ti_scm_sc) {
 		return (EEXIST);
 	}
+#endif /* __rtems__ */
 
 	device_set_desc(dev, "TI Control Module");
 	return (BUS_PROBE_DEFAULT);
@@ -172,5 +176,10 @@ static driver_t ti_scm_driver = {
 
 static devclass_t ti_scm_devclass;
 
+#ifdef __rtems__
+EARLY_DRIVER_MODULE(ti_scm, nexus, ti_scm_driver, ti_scm_devclass, 0, 0,
+    BUS_PASS_BUS + BUS_PASS_ORDER_MIDDLE);
+#else /* __rtems__ */
 EARLY_DRIVER_MODULE(ti_scm, simplebus, ti_scm_driver, ti_scm_devclass, 0, 0,
     BUS_PASS_BUS + BUS_PASS_ORDER_MIDDLE);
+#endif /* __rtems__ */
