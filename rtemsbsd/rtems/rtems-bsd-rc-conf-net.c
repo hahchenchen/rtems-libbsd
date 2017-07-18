@@ -616,6 +616,53 @@ setup_vlans(rtems_bsd_rc_conf*           rc_conf,
   return 0;
 }
 
+static int
+setup_wlans(rtems_bsd_rc_conf*           rc_conf,
+            rtems_bsd_rc_conf_argc_argv* aa,
+            struct ifaddrs*              ifap,
+            bool*                        dhcp)
+{
+  rtems_bsd_rc_conf_argc_argv* vaa;
+  struct ifaddrs*              ifa;
+  int arg;
+  char expr[128];
+  int  r;
+
+  vaa = rtems_bsd_rc_conf_argc_argv_create();
+  if (vaa == NULL)
+    return -1;
+
+  show_result("create_args", load_create_args(rc_conf, aa));
+
+  const char* vlan_create[] = {
+    "ifconfig", aa->argv[2], "create", "wlandev", aa->argv[1], NULL
+  };
+
+  rtems_bsd_rc_conf_print_cmd(rc_conf, "wlan", 5, vlan_create);
+  r = rtems_bsd_command_ifconfig(5, (char**) vlan_create);
+  if (r == 0) {
+    snprintf(expr, sizeof(expr),
+             "ifconfig_%s", aa->argv[2]);
+    r = rtems_bsd_rc_conf_find(rc_conf, expr, vaa);
+    if (r == 0) {
+      if (dhcp_check(vaa)) {
+        *dhcp = true;
+      }
+      else {
+        show_result(aa->argv[2],
+                    ifconfig_(rc_conf, aa->argv[2],
+                              vaa->argc, vaa->argv,
+                              0, NULL,
+                              true));
+      }
+    }
+  }
+
+  rtems_bsd_rc_conf_argc_argv_destroy(vaa);
+
+  return 0;
+}
+
 /*
  * The rc_conf struct cannot be passed to a thread as a pointer. It can only be
  * used in the rc.conf worker thread. As a result the values needed to print a
@@ -768,6 +815,7 @@ interfaces(rtems_bsd_rc_conf* rc_conf, rtems_bsd_rc_conf_argc_argv* aa)
   show_result("lo0", setup_lo0(rc_conf, ifap));
   show_result("ifaces", setup_interfaces(rc_conf, aa, ifap, &dhcp));
   show_result("vlans", setup_vlans(rc_conf, aa, ifap, &dhcp));
+  show_result("wlans", setup_wlans(rc_conf, aa, ifap, &dhcp));
   show_interfaces(ifap);
 
   if (dhcp)
