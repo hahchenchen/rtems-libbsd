@@ -172,6 +172,7 @@ def commonNoWarnings():
 
 def includes():
     return ['-Irtemsbsd/include',
+            '-Ilibbsd_build/include',
             '-Ifreebsd/sys',
             '-Ifreebsd/sys/contrib/pf',
             '-Ifreebsd/sys/net',

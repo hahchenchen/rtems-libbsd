@@ -445,6 +445,29 @@ class ModuleManager(builder.ModuleManager):
         self.add('')
 
         #
+        # Add a copy rule for all headers where the install path and the source
+        # path are not the same.
+        #
+        self.add('    # copy headers if necessary')
+        headerPaths = builder.headerPaths()
+        self.add('    header_build_copy_paths = [')
+        for hp in headerPaths:
+            if hp[2] != '' and not hp[0].endswith(hp[2]):
+                self.add('                               %s,' % (str(hp)))
+        self.add('                              ]')
+        self.add('    for headers in header_build_copy_paths:')
+        self.add('        target = os.path.join("libbsd_build/include", headers[2])')
+        self.add('        start_dir = bld.path.find_dir(headers[0])')
+        self.add('        for header in start_dir.ant_glob("**/" + headers[1]):')
+        self.add('            relsourcepath = os.path.relpath(str(header), start=str(start_dir))')
+        self.add('            targetheader = os.path.join(target, relsourcepath)')
+        self.add('            bld(features = \'subst\',')
+        self.add('                target = targetheader,')
+        self.add('                source = header,')
+        self.add('                is_copy = True)')
+        self.add('')
+
+        #
         # Add the specific rule based builders for generating files.
         #
         if 'KVMSymbols' in data:

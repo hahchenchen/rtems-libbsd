@@ -62,6 +62,7 @@ def build(bld):
         for i in ['-Irtemsbsd/@CPU@/include', '-Ifreebsd/sys/@CPU@/include']:
             includes += ["%s" % (i[2:].replace("@CPU@", "x86"))]
     includes += ["rtemsbsd/include"]
+    includes += ["libbsd_build/include"]
     includes += ["freebsd/sys"]
     includes += ["freebsd/sys/contrib/pf"]
     includes += ["freebsd/sys/net"]
@@ -122,6 +123,20 @@ def build(bld):
         source = "testsuite/include/rtems/bsd/test/network-config.h.in",
         rule = "sed -e 's/@NET_CFG_SELF_IP@/%s/' -e 's/@NET_CFG_NETMASK@/%s/' -e 's/@NET_CFG_PEER_IP@/%s/' -e 's/@NET_CFG_GATEWAY_IP@/%s/' < ${SRC} > ${TGT}" % (net_cfg_self_ip, net_cfg_netmask, net_cfg_peer_ip, net_cfg_gateway_ip),
         update_outputs = True)
+
+    # copy headers if necessary
+    header_build_copy_paths = [
+                              ]
+    for headers in header_build_copy_paths:
+        target = os.path.join("libbsd_build/include", headers[2])
+        start_dir = bld.path.find_dir(headers[0])
+        for header in start_dir.ant_glob("**/" + headers[1]):
+            relsourcepath = os.path.relpath(str(header), start=str(start_dir))
+            targetheader = os.path.join(target, relsourcepath)
+            bld(features = 'subst',
+                target = targetheader,
+                source = header,
+                is_copy = True)
 
     # KVM Symbols
     bld(target = "rtemsbsd/rtems/rtems-kernel-kvm-symbols.c",
