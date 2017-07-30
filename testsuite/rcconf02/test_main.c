@@ -123,6 +123,17 @@ static const char* rc_conf_text =                          \
   "\n"                                                     \
   "\n";
 
+static const char* rc_conf_text1 =                         \
+  "#\n"                                                    \
+  "# Tests rc.conf. Add every NIC\n"                       \
+  "#\n"                                                    \
+  "network={\n"                                            \
+  "\n"                                                     \
+  "ssid=\"zhao\"\n"                                        \
+  "psk=\"0123456789\"\n"                                   \ 
+  "}\n"                                                    \
+  "\n";
+
 static const char* pf_conf_text = "pass all\n";
 static const char* pf_os_text = "# empty\n";
 
@@ -134,10 +145,10 @@ prepare_files(void)
   int fd;
   int rv;
 
-  len = strlen(pf_conf_text);
-  fd = open("/etc/mypf.conf", O_WRONLY | O_CREAT, S_IRWXU | S_IRWXG | S_IRWXO);
+  len = strlen(rc_conf_text1);
+  fd = open("/etc/wpa_supplicant.conf", O_WRONLY | O_CREAT, S_IRWXU | S_IRWXG | S_IRWXO);
   assert(fd != -1);
-  written = write(fd, pf_conf_text, len);
+  written = write(fd, rc_conf_text1, len);
   assert(written == len);
   rv = close(fd);
   assert(rv == 0);
@@ -168,7 +179,7 @@ test_rc_conf_script(void)
   printf(rc_conf_text);
   printf("-----------------------------------------\n");
 
-  assert(rtems_bsd_run_rc_conf_script("internal", rc_conf_text, 15, true) == 0);
+ // assert(rtems_bsd_run_rc_conf_script("internal", rc_conf_text, 15, true) == 0);
 
   printf("-------------- IFCONFIG -----------------\n");
   rtems_bsd_command_ifconfig(1, (char**) ifconfg_args);
@@ -235,6 +246,7 @@ test_main(void)
   &rtems_shell_IFCONFIG_Command, \
   &rtems_shell_TCPDUMP_Command, \
   &rtems_shell_PFCTL_Command, \
+  &rtems_shell_WPA_SUPPLICANT_Command, \
   &rtems_shell_SYSCTL_Command
 
 #define CONFIGURE_SHELL_COMMAND_CPUUSE
