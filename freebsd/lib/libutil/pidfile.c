@@ -58,14 +58,22 @@ pidfile_verify(const struct pidfh *pfh)
 	struct stat sb;
 
 	if (pfh == NULL || pfh->pf_fd == -1)
+#ifdef __rtems__
+		return (ECANCELED);
+#else /* __rtems__ */
 		return (EDOOFUS);
+#endif /* __rtems__ */
 	/*
 	 * Check remembered descriptor.
 	 */
 	if (fstat(pfh->pf_fd, &sb) == -1)
 		return (errno);
 	if (sb.st_dev != pfh->pf_dev || sb.st_ino != pfh->pf_ino)
+#ifdef __rtems__
+		return (ECANCELED);
+#else /* __rtems__ */
 		return (EDOOFUS);
+#endif /* __rtems__ */
 	return (0);
 }
 
@@ -273,7 +281,12 @@ pidfile_fileno(const struct pidfh *pfh)
 {
 
 	if (pfh == NULL || pfh->pf_fd == -1) {
+		#ifdef __rtems__
+		errno = ECANCELED;
+        #else /* __rtems__ */
 		errno = EDOOFUS;
+        #endif /* __rtems__ */
+		
 		return (-1);
 	}
 	return (pfh->pf_fd);
