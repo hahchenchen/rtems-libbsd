@@ -62,6 +62,8 @@ int rtems_bsd_command_route(int argc, char **argv);
 
 int rtems_bsd_command_dhcpcd(int argc, char **argv);
 
+int rtems_bsd_command_wpa_supplicant(int argc, char **argv);
+
 int rtems_bsd_command_tcpdump(int argc, char **argv);
 
 int rtems_bsd_command_sysctl(int argc, char **argv);
