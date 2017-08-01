@@ -116,32 +116,11 @@ static const char* rc_conf_text =                          \
   "#\n"                                                    \
   "# Tests rc.conf. Add every NIC\n"                       \
   "#\n"                                                    \
+  "create_args_mywlan=\"rtwn0 wlan0\"\n"                   \
   "\n"                                                     \
-  "syslog_priority=\"debug\"\n"                            \
+  "wlans_rtwn0=\"wlan0\"\n"                                \
+  "ifconfig_wlan0=\"DHCP\"\n"                              \ 
   "\n"                                                     \
-  "hostname=\"rctest\"\n"                                  \
-  "\n"                                                     \
-  "create_args_myvlan=\"vlan 102\"\n"                      \
-  "create_args_yourvlan=\"vlan 202\"\n"                    \
-  "\n"                                                     \
-  RC_CONF_IFACES                                           \
-  "\n"                                                     \
-  RC_CONF_VLANS                                            \
-  "\n"                                                     \
-  "defaultrouter=\"" NET_CFG_GATEWAY_IP "\"\n"             \
-  "defaultroute_delay=\"5\"\n"                             \
-  "\n"                                                     \
-  "dhcpcd_options=\"-h foobar\"\n"                         \
-  "\n"                                                     \
-  "telnetd_enable=\"YES\"\n"                               \
-  "telnetd_options=\"-v -C 10 -P 50 -L\"\n"                \
-  "\n"                                                     \
-  "ftpd_enable=\"YES\"\n"                                  \
-  "ftpd_options=\"-v -p 21 -C 10 -P 150 -L -I 10 -R /\"\n" \
-  "\n"                                                     \
-  "pf_enable=\"YES\"\n"                                    \
-  "pf_rules=\"/etc/mypf.conf\"\n"                          \
-  "pf_flags=\"-q -z\"\n"                                   \
   "\n";
 
 static const char* pf_conf_text = "pass all\n";
@@ -234,6 +213,7 @@ shell(void)
 static void
 test_main(void)
 {
+  udelay(3000000);
   prepare_files();
   test_rc_conf_script();
   shell();
