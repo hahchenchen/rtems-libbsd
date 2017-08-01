@@ -225,7 +225,7 @@ static int os_daemon(int nochdir, int noclose)
 
 int os_daemonize(const char *pid_file)
 {
-#if defined(__uClinux__) || defined(__sun__)
+#if defined(__uClinux__) || defined(__sun__) || defined(__rtems__)
 	return -1;
 #else /* defined(__uClinux__) || defined(__sun__) */
 #ifdef __FreeBSD__
