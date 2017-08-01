@@ -18,7 +18,11 @@
 #include "wpa_supplicant_i.h"
 #include "driver_i.h"
 #include "p2p_supplicant.h"
-
+#ifdef __rtems__
+#include <assert.h>
+#include <sys/mutex.h>
+#include <machine/rtems-bsd-program.h>
+#endif /* __rtems__ */
 
 static void usage(void)
 {
@@ -154,6 +158,29 @@ static void wpa_supplicant_fd_workaround(int start)
 #endif /* __linux__ */
 }
 
+#ifdef __rtems__
+#include <rtems/libio.h>
+
+static int
+main(int argc, char **argv);
+
+int rtems_bsd_command_wpa_supplicant(int argc, char **argv)
+{
+	int exit_code;
+	rtems_status_code sc;
+
+	sc = mtx_trylock(&wpa_supplicant_mtx);
+	if (sc == 0) {
+		fputc("ERROR: wpa_supplicant is already running", stderr);
+		return EXIT_FAILURE;
+	}
+	exit_code = rtems_bsd_program_call_main("wpa_supplicant", main, argc, argv);
+
+	mtx_unlock(&wpa_supplicant_mtx);
+
+	return exit_code;
+}
+#endif /* __rtems__ */
 
 int main(int argc, char *argv[])
 {
