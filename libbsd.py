@@ -4237,6 +4237,7 @@ def usr_sbin_wpa_supplicant(mm):
     mod.addRTEMSSourceFiles(
         [
             'rtems/rtems-bsd-shell-wpa_supplicant.c',
+            'rtems/rtems-bsd-shell-wpa_supplicant_fork.c',
         ],
         mm.generator['source']()
     )
