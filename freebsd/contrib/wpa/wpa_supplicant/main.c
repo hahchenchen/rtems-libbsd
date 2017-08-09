@@ -18,7 +18,9 @@
 #include "wpa_supplicant_i.h"
 #include "driver_i.h"
 #include "p2p_supplicant.h"
-
+#ifdef __rtems__
+#include <assert.h>
+#endif /* __rtems__ */
 
 static void usage(void)
 {
@@ -167,6 +169,66 @@ int rtems_bsd_command_wpa_supplicant(int argc, char **argv)
 	exit_code = rtems_bsd_program_call_main("wpa_supplicant", main, argc, argv);
 
 	return exit_code;
+}
+
+struct myparams {
+   int argc;
+   char ** argv;
+};
+
+static void
+new_wpa_supplicant_task(rtems_task_argument arg)
+{
+   int argc;
+   char ** argv;
+   int i;
+
+   struct myparams *params = (struct myparams *)arg;
+   argc = params->argc;
+   argv = params->argv;
+
+   rtems_bsd_command_wpa_supplicant(argc, argv);
+
+   for (i = 0; i < params->argc; i++) {
+		free(params->argv[i]);
+	}
+	free(params->argv);
+	free(params);
+}
+
+int rtems_bsd_command_wpa_supplicant_fork(int argc, char **argv)
+{
+    rtems_status_code sc;
+	rtems_id id;
+    int i;
+
+    struct myparams *params = malloc(sizeof(struct myparams));
+    if (params == NULL)
+		return NULL;
+
+	params->argc = argc;
+	params->argv = malloc(argc * sizeof(argv[0]));
+	if (params->argv == NULL)
+		return NULL;
+
+	for (i = 0; i < argc; i++) {
+		params->argv[i] = strdup(argv[i]);
+		if (params->argv[i] == NULL)
+			return NULL;
+	}
+
+	sc = rtems_task_create(
+		rtems_build_name('W', 'P', 'A', 'S'),
+		RTEMS_MAXIMUM_PRIORITY - 1,
+		2 * RTEMS_MINIMUM_STACK_SIZE,
+		RTEMS_DEFAULT_MODES,
+		RTEMS_FLOATING_POINT,
+		&id
+	);
+	assert(sc == RTEMS_SUCCESSFUL);
+
+    sc = rtems_task_start(id, new_wpa_supplicant_task, params);
+	assert(sc == RTEMS_SUCCESSFUL);
 }
 #endif /* __rtems__ */
 
