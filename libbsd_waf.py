@@ -1690,6 +1690,7 @@ def build(bld):
               'freebsd/sys/arm/ti/am335x/am335x_usbss.c',
               'freebsd/sys/arm/ti/ti_hwmods.c',
               'freebsd/sys/arm/ti/ti_prcm.c',
+              'freebsd/sys/arm/ti/ti_pruss.c',
               'freebsd/sys/arm/ti/ti_scm.c',
               'freebsd/sys/arm/ti/ti_sdhci.c',
               'freebsd/sys/arm/xilinx/zy7_slcr.c',

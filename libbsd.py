@@ -507,6 +507,7 @@ def mmc_ti(mm):
             'sys/arm/ti/ti_prcm.h',
             'sys/arm/ti/ti_hwmods.h',
             'sys/dev/sdhci/sdhci.h',
+            'sys/arm/ti/ti_pruss.h',
             'sys/dev/sdhci/sdhci_fdt_gpio.h',
             'sys/dev/gpio/gpiobusvar.h',
         ]
@@ -515,6 +516,7 @@ def mmc_ti(mm):
         [
             'sys/dev/sdhci/sdhci.c',
             'sys/arm/ti/ti_sdhci.c',
+            'sys/arm/ti/ti_pruss.c',
             'sys/arm/ti/ti_hwmods.c',
             'sys/dev/sdhci/sdhci_fdt_gpio.c',
             'sys/dev/gpio/ofw_gpiobus.c',
